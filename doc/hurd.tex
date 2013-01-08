@@ -1,0 +1,26 @@
+\mysection{GNU Hurd-L4}
+
+GNU Hurd-L4 aims to run on an implementation of the L4 microkernel; although,
+recent postings on the GNU Hurd-L4 mailing lists indicates that their
+focus may be shifting towards the Coyotos~\cite{l4mailings}
+kernel\footnote{Another second generation microkernel written by Dr. Jonathan
+Shapiro.}.  The reason for Hurd-L4's shift in focus is because it is not
+clear whether or not the L4 primitives\footnote{Basic API.} will be enough
+to support a complex operating system such as Hurd-L4.
+
+If GNU Hurd-L4 does switch to the Coyotos kernel, it will actually receive
+an extra feature: persistence~\cite{shapiro2002DEO}.  Support for operating
+system persistence is built into Coyotos and conceptually allows swap space
+and file systems to act as one single-memory-store~\cite{shapiro2002DEO}.
+Thus, a user would no longer need to save files, because the mere act of
+writing anything to memory would save it during an operating system
+checkpoint\footnote{Periodically, checkpoints are created by the operating
+system to save the entire operating system state to the backing store.}
+or swap to the backing store.
+
+Whatever the Hurd-L4 project chooses as their kernel, one of the primary
+goals retained from the original GNU Hurd project is the ability
+for multiple computers to act as a single cluster (collective).  Thus,
+the ability to serialize\footnote{Convert complex data structures to
+ordered binary strings.} data must be provided by the operating system.
+Coyotos already has such features, while L4 does not.

@@ -1,0 +1,26 @@
+Index: kernel/table.c
+===================================================================
+71c71,72
+< #define USR_M (s(PM_PROC_NR) | s(FS_PROC_NR) | s(RS_PROC_NR) | s(SYSTEM))
+---
+> #define USR_M (s(PM_PROC_NR) | s(FS_PROC_NR) | s(RS_PROC_NR) | \
+> 		s(DDM_PROC_NR) | s(SYSTEM))
+111a113
+>  { DDM_PROC_NR,   0, SRV_F,  4,      2, 0,     SRV_T, SRV_M, DRV_C, "DDM"   },
+Index: tools/Makefile
+===================================================================
+16a17
+> 	PROJECT_PATH__/build/sbin/DDM \
+53a55
+> 	GMAKE__ -C PROJECT_PATH__ image
+59a62
+> 	GMAKE__ -C PROJECT_PATH__ image
+98a102
+> 	GMAKE__ -C PROJECT_PATH__ $@
+Index: include/minix/com.h
+===================================================================
+44c44,45
+< #define INIT_PROC_NR	  7    	/* init -- goes multiuser */
+---
+> #define DDM_PROC_NR	  7     /* device driver manager */
+> #define INIT_PROC_NR	  8    	/* init -- goes multiuser */

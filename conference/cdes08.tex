@@ -1,0 +1,79 @@
+% This preamble was taken from http://www.xfig.org/userman/latex_and_xfig.html
+% and modified to fit our purposes.
+%\documentclass{acm_proc_article-sp}
+
+\documentclass[twocolumn,10pt]{article}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{psfrag}
+\usepackage{textcomp}		% special text mode symbols
+%\usepackage{draftcopy}		% print "DRAFT" on all pages
+%\usepackage{tabularx}
+\usepackage{setspace}
+\usepackage{rotating}
+\usepackage{thesis}
+
+% set the page layout parameters
+\textwidth 6.5in
+\textheight 9.2in
+\hoffset 0.025in
+\voffset -0.2in
+
+\begin{document}
+
+\pagestyle{empty}
+
+\title{\bf A User-Space Device Driver Framework}
+
+%\numberofauthors{2}
+
+\author{%
+\begin{tabular}{cc}
+\begin{minipage}{3in}
+\begin{center}
+William M. Grim~\footnote{Work completed while author was at Southern Illinois University-Edwardsville}\\
+Commodities Systems\\
+Morgan Stanley\\
+New York, NY, USA\\
+grimwm@gmail.com\\
+\end{center}
+\end{minipage}
+&
+\begin{minipage}{3in}
+\begin{center}
+Stephen A. Blythe\\
+Department of Computer Science\\
+Southern Illinois University - Edwardsville\\
+Edwardsville, IL, USA \\
+sblythe@siue.edu \\
+\end{center}
+\end{minipage}
+\end{tabular}}
+
+\date{}
+
+\twocolumn
+
+\maketitle\thispagestyle{empty}
+
+\input{abstract}
+
+\input{introduction}
+
+\input{background}
+
+%\input{micro_examples}
+
+\input{related}
+
+\input{design}
+
+\input{results}
+
+\input{conclusions_and_future}
+
+\bibliographystyle{abbrv}
+\bibliography{bibliography}
+
+\end{document}

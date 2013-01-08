@@ -1,0 +1,17 @@
+%\mychapter{Device Driver Manager}
+\mysubsection{Device Driver Manager}
+
+The device driver manager is a server task that manages
+drivers and allows other tasks to find and gain access to them.
+Due to the fact that the DDM is the core process in the DDF, the DDM is
+resilient to failures of devices or their drivers.
+
+Since all drivers reside in their own address space and are assumed to
+reside on the same system, the DDM does not need extensive fault tolerance.
+When a process unexpectedly dies and another process tries to communicate
+with it, the process manager will tell the calling process why the call
+fails.  Likewise, when a failure is recognized, a log message is generated,
+and it is up to the administrator to resolve the problem.  However, since
+the existing implementation of this design is on Minix 3, Minix's
+reincarnation server (RS) can reincarnate processes that have died
+unexpectedly. Such allows for a large degree of fault tolerance.

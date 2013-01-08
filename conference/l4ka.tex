@@ -1,0 +1,22 @@
+The L4Ka::Pistachio (L4Ka) kernel is an implementation of the original
+L4 design by Jochen Liedtke~\cite{herder2005}.  L4Ka's main features are
+simplicity, speed and security.
+
+L4Ka has a straightforward application programming interface (API)
+consisting of twelve system calls and twelve data types~\cite{l4ref2005}.
+These system calls and data types handle the most
+basic and central operation of microkernels: the kernel interface page
+and API information, threading, timing and thread
+scheduling\footnote{Does not refer to typical scheduling algorithms for
+simulating parallel processing.  Instead, it allows threads to schedule a
+thread of equal or lesser priority to run immediately.}, address
+spaces and mapping, IPC, exception handling, and memory and processor
+control~\cite{l4ref2005}.  All other services normally seen in monolithic
+kernels are considered second class, to be handled by user-space
+servers (threads).
+
+Along with L4Ka's number of system calls and data types being small, its
+memory footprint is as well, being only 12 KB.  Thus, L4Ka usually
+resides in the CPU cache, and it exchanges most data via CPU
+registers~\cite{l4ref2005}.  Both of these attributes are its primary source
+of increased performance.

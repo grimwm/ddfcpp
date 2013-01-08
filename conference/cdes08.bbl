@@ -1,0 +1,48 @@
+\begin{thebibliography}{1}
+
+\bibitem{hurdl4ref2003}
+M.~Brinkmann.
+\newblock {\em {Porting the GNU Hurd to the L4 Microkernel}}.
+\newblock Free Software Foundation, Inc., August 2003.
+
+\bibitem{cormen2001}
+T.~H. Cormen, C.~E. Leiserson, R.~L. Rivest, and C.~Stein.
+\newblock {\em {Introduction to Algorithms}}.
+\newblock MIT Press, 55 Hayward St., Cambridge, MA 02142-1315, USA, 2 edition,
+  2001.
+
+\bibitem{ia32-1-2004}
+Intel.
+\newblock {\em {IA-32 Intel Architecture Software Developer's Manual: Basic
+  Architecture}}, volume~1.
+\newblock Intel Corporation, Denver, CO 80217-9808, USA, 2004.
+
+\bibitem{liedtke1996}
+J.~Liedtke.
+\newblock {Toward Real Microkernels}.
+\newblock {\em Communications of the ACM}, 39(9):70--77, September 1996.
+
+\bibitem{mckusick1996}
+K.~M. McKusick, K.~Bostic, M.~J. Karels, and J.~S. Quarterman.
+\newblock {\em {The Design and Implementation of the 4.4 BSD Operating
+  System}}.
+\newblock Addison-Wesley, Reading, MA, USA, 1 edition, 1996.
+
+\bibitem{stallings2005}
+W.~Stallings.
+\newblock {\em {Operating Systems}}.
+\newblock Prentice Hall, Upper Saddle River, New Jersey 07458, USA, 5 edition,
+  2005.
+
+\bibitem{tanenbaum2002}
+A.~S. Tanenbaum and M.~Van~Steen.
+\newblock {\em {Distributed Systems: Principles and Paradigms}}.
+\newblock Prentice Hall, Upper Saddle River, New Jersey 07458, USA, 1 edition,
+  2002.
+
+\bibitem{l4ref2005}
+S.~A. G.~L. Team.
+\newblock {\em {L4 eXperimental Kernel Reference Manual}}.
+\newblock Universit{\"a}t Karlsruhe, 6 edition, June 2005.
+
+\end{thebibliography}

@@ -1,0 +1,67 @@
+\mychapter{Device Driver Framework Design}
+\label{sec:design}
+
+The {\important device driver framework} (DDF) design is primarily
+based on the deva/fabrica design discussed in Section~\ref{sec:deva_fabrica}
+and has three major components: an interprocess communication (IPC)
+library that provides common methods for DDF communication, a
+{\important device driver manager} (DDM) that monitors device drivers
+registered with it, and a keyboard snooping driver that tests the correctness
+of the framework.  \figurename~\ref{fig:ddf_layout} presents an overview of
+the DDF, but an in-depth discussion is deferred for the following subsections.
+
+The DDF's primary purpose is not to improve the raw performance (speed) of
+existing frameworks but merely to enhance the safety of driver execution and
+simplify the driver implementor's task.  That said, performance is an
+important secondary goal, and the DDF should either maintain or exceed current
+performance levels seen in existing second-generation microkernel OS.
+
+	\begin{figure}[tbp]
+	\begin{center}
+	\scale{0.75}{\graphic{ddf_layout}}
+	\end{center}
+	\caption{Device driver framework layout.}
+	\label{fig:ddf_layout}
+	\end{figure}
+
+\mysection{Device Classes}
+
+There is no distinction among whether a driver is block, character, or raw.
+Originally, these three classes were going to exist, but it was discovered
+during implementation that these classes are only relevant to higher level
+subsystems, such as the file system and does not affect driver operation.
+In fact, drivers are each free to interact with the hardware in a way
+they see fit.
+
+\mysection{Device Scheduling}
+
+Device drivers each have a first-in-first-out (FIFO) queue where requests to
+use the device are sent.  This allows the drivers to pull new requests from
+a single location one at a time while clients are allowed to add new
+requests in parallel.
+
+In some monolithic OS, drivers themselves have direct
+access to this queue so that requests can be reordered to maximize performance;
+unfortunately, the current implementation of the DDF does not support this due
+to lack of capability in Minix 3 for it.  In fact, had drivers attempted
+to access multiple items in its queue using Minix 3's {\code receive()} call,
+the driver would have suffered a high likelihood of live-locking.
+
+The framework is not designed to allow client processes to directly lock
+drivers for exclusive use.  The reasons for this include avoiding a
+performance penalty that would have occured by always having to check bits to
+see if the calling client had appropriate access rights and because it was
+deemed that security is appropriately handled by other OS subsystems.  In
+fact, the primary responsibility of this DDF is to provide ``utility'' to
+driver writers and to leave security to dedicated subsystems.  An example of a
+subsystem that could properly handle security for device driver access is a
+device file system similar to FreeBSD's devfs\footnote{Provides a file
+system-level interface for client processes to access device drivers.}.
+This both simplifies the design and makes it more robust by concentrating on
+one task only.
+
+\input{design_user_presentation}
+
+\input{design_lib}
+
+\input{design_ddm}

@@ -1,0 +1,238 @@
+\mychapter{Bootstrapping Microkernel Systems}
+
+Pure microkernels introduce problems when trying to boot a computer, also known
+as {\important bootstrapping}.  For example, when the microkernel first
+loads onto the system, it has no working knowledge of devices and file
+systems; however, in order for the microkernel to get any
+work accomplished, by conventional standards, it needs to
+access file systems on hardware devices in order to load more software.  This
+introduces a chicken-and-the-egg problem
+whereby the kernel needs to know about devices whose device drivers are
+separate from the kernel; therefore, something else must
+be done, such as using external boot-time modules that provide the
+necessary information.
+
+In general, another problem with bootstrapping is that historically, boot
+loaders have been written for specific operating systems.  These
+boot loaders are loaded by the Basic Input/Output System (BIOS) and
+are used to boot the rest of the kernel.  However, the
+Multiboot specifiction and one implementation of it helps solve this
+problem and others on the Intel IA-32 architecture~\cite{grub_info}.
+
+\mysubsection{Intel 32-bit Architecture}
+
+Before getting into the details of bootstrapping, a bit of background on
+Intel's 32-bit architecture (IA-32) is required.  This information is
+necessary because it describes the difference between little endian
+and big endian.  When working with binary data at the hardware level,
+this issue becomes important since passing data in a big endian format
+when the hardware expects it in a little endian format will confuse the
+hardware.  This section also introduces the concept of linear address
+spaces and is important to understand how it abstracts memory addressing
+at a higher level.
+
+Intel's byte addressing is {\important little endian}~\cite{ia32-1-2004},
+meaning each
+{\important word}'s\footnote{32-bit memory segments~\cite{hennessy2003}.}
+least-significant-byte lays on the right-hand side
+and most-significant-byte lays on the left-hand side.
+For an example of the difference between little endian and big endian
+byte ordering, see \figurename~\ref{fig:endianness}.
+
+	\begin{figure}[tb]
+	\begin{center}
+	\mygraphic{endianness.eps}
+	\end{center}
+	\caption{Endianness for half words: (a) big endian and (b) little
+		endian.}%~\cite{ia32-1-2004}.}   XXX
+	\label{fig:endianness}
+	\end{figure}
+
+All memory addresses in IA-32 are
+{\important byte addressable}~\cite{ia32-1-2004}.  What
+this means is that all 32-bits of an IA-32 memory address can be used to
+access up to 4 GB of memory, as expressed in Equation~\ref{eq:max_mem}.
+
+\begin{equation}
+2^{32} B = 4,294,967,296 B *
+\frac{1~KB}{1,024~B} * \frac{1~MB}{1,024~KB} * \frac{1~GB}{1,024~MB} =
+4 GB
+\label{eq:max_mem}
+\end{equation}
+
+{\important Linear address space} is a typical hardware phrase indicating the
+fact that some sort of memory mapping hardware is available to convert a
+given 1-dimensional address into an N-dimensional cross-section in
+real memory~\cite{hennessy2003}.  Consider the 32-bit address, 0x1000FF98.
+When the memory mapping hardware receives this address, one possible way
+to do the mapping is by using a row address
+strobe\footnote{Also known as RAS, the address is used to find a
+particular row in memory matching that address~\cite{hennessy2003}.}
+followed by a column address
+strobe\footnote{Also known as CAS, it works almost like RAS, except it
+works on the row found in RAS to find a particular column~\cite{hennessy2003}.}
+to return data to the requester~\cite{hennessy2003}.  Under this
+method, the mapping hardware will use 0x1000 to find a row in real memory
+and 0xFF98 to find a particular column (i.e. bit) in that
+row~\cite{hennessy2003}.  The important thing to remember is that all
+memory appears to be logically ordered as a linear set of addresses, while
+in reality the memory mapping hardware could map the addresses to a foreign
+set of rules.
+
+\mysubsection{Multiboot Specification}
+To deal with the problem of booting microkernel-based operating systems and
+GNU Hurd in particular, Erich Boleyn and Brian Ford devised the Multiboot
+specification~\cite{grub_info}.  Essentially, the Multiboot specification
+solves two core problems.  The first, more classic problem it solves is a
+consistent bootstrapping protocol for various types of kernels
+(Linux, BSD, etc.).  The second, more important problem it solves for
+microkernels is the ability to load a kernel and several kernel servers
+(modules) at boot time~\cite{multiboot_info}.
+
+To solve the bootstrapping protocol problem, the Multiboot specification
+requires that kernel images contain a special header that
+gives information about the file layout.  This header is known as the
+{\code Multiboot header} and is shown in
+\figurename~\ref{fig:multiboot_header}.  The Multiboot header is a consistent
+data structure that can be prepended to kernel images to create kernels that
+Multiboot-compliant boot loaders can understand.
+
+	\begin{figure}[tb]
+	\begin{center}
+	\mygraphic{multiboot_header.eps}
+	\end{center}
+	\caption{Multiboot header fields: (a) always required, (b) required if
+	{\code flags[16]} set, and (c) required if {\code flags[2]} set.}
+	\label{fig:multiboot_header}
+	\end{figure}
+
+The Multiboot header in \figurename~\ref{fig:multiboot_header} is also known as
+a magic header and eliminates the
+need for kernel developers to write special purpose boot loaders that
+are only compatible with specific kernels by specifying three critical
+fields: {\important magic}, {\important flags}, and
+{\important checksum}~\cite{multiboot_info}.  The
+{\important magic}\footnote{Magic values provide information about the rest of
+the program, such as its linking type.}
+field is located at relative
+address\footnote{If a program located at physical memory location 0xAE98
+tries to access relative memory location 0x0040, it will actually
+access physical memory address \( 0xAE98+0x0040=0xAED8 \).}
+$0x0$ and defined to be $0x1BADB002$, while {\important flags} specifies
+features the operating system requests or requires of the boot loader.  Also,
+{\important flags} indicates to the boot loader that the Multiboot
+header contains optional information that should be used~\cite{multiboot_info}.
+Finally, when the values in {\important magic} and {\important flags}
+are summed with {\important checksum}, the result should be a
+32-bit unsigned zero~\cite{multiboot_info}.
+
+For implementors of microkernel-like kernels, the Multiboot specification
+solves an even greater problem: the loading of several software modules at
+boot time.  This is a critical component to writing microkernel operating
+systems, because it allows developers to write independent code segments,
+apart from the microkernel, which are necessary to facilitate the full
+operation of operating systems.  Once a kernel and its modules are
+in memory, the bootloader notifies the Multiboot-compliant kernel of the
+modules and their locations in memory via the Multiboot information
+structure\footnote{On IA-32, the Multiboot-compliant kernel knows where
+the Multiboot information structure is via the physical address set
+in the EBX register.}
+seen in \figurename~\ref{fig:multiboot_info}~\cite{multiboot_info}.
+
+	\begin{figure}[tb]
+	\begin{center}
+	\mygraphic{multiboot_info.eps}
+	\end{center}
+	\caption{(a) Multiboot information structure and (b) array of
+	Multiboot module structure(s) that exists if
+	{\code flags[3]} set and {\code mods\_count} $\geq~0$.}
+	\label{fig:multiboot_info}
+	\end{figure}
+
+\mysubsection{{GNU GRUB}}
+GNU GRUB (GRUB) is the first boot loader ever created with the Multiboot
+specification in mind~\cite{grub_info}.
+It was conceived by Erich Boleyn in 1995 while he was
+attempting to modify FreeBSD's boot loader to conform to the Multiboot
+specification; he was doing this in an attempt to get GNU Hurd to boot
+using University of Utah's Mach 4 microkernel.  However, modifying
+FreeBSD's boot loader proved to be an unreasonble amount of work, and Erich
+decided to begin GRUB.  Over time, Erich's priorities changed, and GRUB
+became a GNU project in 1999, being adopted by Gordon Matzigkeit and
+Yoshinori Okuji~\cite{grub_info}.
+
+Currently, GRUB only runs on the IA-32 architecture and is primarily
+aimed at supporting the GNU Hurd operating system; though, it is
+likely GRUB will be ported to other architectures in the future (especially
+when the Hurd extends beyond IA-32).
+\figurename~\ref{fig:grub_features}~\cite{grub_info} gives a list of GRUB's
+major features.
+
+	\begin{figure}[tb]
+	  \begin{center}
+	  \begin{minipage}{6in}
+	  \begin{enumerate}
+
+	  \item Implement full Multiboot specification compliance.
+
+	  \item Achieve a straight-forward interface to end-users.
+
+	  \item Employ rich interface for kernel experts.
+
+	  \item Maintain backward boot compatibility for BSD, Linux, and
+	    various proprietary kernels, such as Microsoft\copyright
+	    Windows\texttrademark.
+
+	  \item Recognize several executable formats, such as a.out variants
+	    and the Executable and Linking Format (ELF).
+
+	  \item Use human-readable configuration files with preset boot
+	    information.
+
+	  \item Provide menu of configuration presets when booting.
+
+	  \item Provide a boot-time command-line shell for on-the-fly boot
+	    customization before booting a kernel.
+
+	  \item Support several common filesystem types to make GRUB
+	    filesystem independent.
+
+	  \item Support drive access from any drive recognized by the BIOS
+	    and work independently of drive geometry translations.
+
+	  \item Detect all installed RAM.
+
+	  \item Support large disks using logical block address (LBA) mode.
+
+	  \item Support booting kernels via network protocols (e.g. TFTP).
+
+	  \item Support local access via remote terminals (e.g. serial line
+	    access).
+	  \end{enumerate}
+	  \end{minipage}
+	\end{center}
+	\caption{Major list of GNU GRUB features.}
+	\label{fig:grub_features}
+	\end{figure}
+
+The list of GRUB features is large, providing a powerful boot loader
+implementation that is extremely useful to microkernels because of
+its Multiboot compliance in loading kernel modules.  However, GRUB
+does lack ability in two key areas: it is currently bound to the IA-32
+architecture, and it can only load kernels at memory addresses
+$\geq~1~MB$~\cite{grub_info}.
+
+On modern PC systems, it is unlikely that any kernel would be less than 32-bit
+addressable.  However, GRUB forces kernels to support at least 32-bit memory
+addressing, because GRUB enables IA-32's 32-bit address mode and places
+kernels at the 1 MB (0xFA000) or larger memory address~\cite{grub_info}.  The
+reason for
+this is because on IA-32, the linear address space is byte addressable,
+meaning a 16-bit kernel can only reach 64 KB (0xFFFF) of main memory; thus, a
+kernel
+must boot into IA-32's protected mode at a minimum, which is a 32-bit mode,
+giving the kernel direct access to 4 GB of linear address
+space~\cite{ia32-1-2004}.  Fortunately, GRUB takes care of the special boot
+code that places the CPU in 32-bit protected mode, greatly easing the kernel
+implementor's job and freeing them from implementing specialized boot
+loaders~\cite{grub_info}.

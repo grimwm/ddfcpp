@@ -1,0 +1,57 @@
+% This preamble was taken from http://www.xfig.org/userman/latex_and_xfig.html
+% and modified to fit our purposes.
+\documentclass[12pt,oneside]{book}
+
+%\parindent=0pt			% do not indent paragraphs
+%\parskip=0.15 true in
+
+\usepackage{booktabs}
+\usepackage{doc}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{psfrag}
+\usepackage{textcomp}		% special text mode symbols
+%\usepackage{draftcopy}		% print "DRAFT" on all pages
+%\usepackage{tabularx}
+\usepackage{setspace}
+\usepackage{rotating}
+\usepackage{thesis}
+
+\begin{document}
+
+\fancyfrontnumbering
+\thispagestyle{empty}
+\input{frontpage}
+
+\input{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\cleardoublepage
+\fancymainnumbering
+\doublespacing
+
+\input{introduction}
+
+\input{background}
+
+\input{micro_examples}
+
+\input{related}
+
+\input{design}
+
+\input{results}
+
+\input{conclusions_and_future}
+
+\singlespacing
+
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+\input{appendices}
+
+\end{document}

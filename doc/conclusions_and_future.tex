@@ -1,0 +1,72 @@
+\mychapter{Conclusions and Future Work}
+
+In the end, the new user-space device driver framework is a success in
+terms of functionality.  It has stepped the existing Minix framework into
+the foray of C++ driver development and has added a device driver manager
+that does not exist in Minix's current framework.
+
+With the framework existing in user-space, safety of driver development
+has improved.  When drivers ran in kernel-space, any flaws in the driver
+could easily bring down an entire computer system by corrupting the operating
+system kernel.  However, with drivers in user-space, failing drivers can
+only impact processes directly relying on them.  This can still result in
+an entire system grinding to a halt, but the possibility of this is lessened.
+
+The new DDM this new framework provides is able to give
+users a better presentation of the driver layer by bestowing users with a
+hierarchical view of the driver tree rather than the flat view given by
+Minix's process manager.
+
+So, while this design has improved certain areas of driver development,
+it still leaves room for enhancement.  Proceeding is a listing of potential
+areas that could be enhanced or extended along with a description of how
+the enhancement might be accomplished.
+
+\mysection{Performance}
+
+Adding DMA memory allocation to libMem would be a large step towards
+making the new DDF more competitive with existing frameworks.  Currently,
+memory allocation is not guaranteed to be contiguous in physical memory,
+and this guarantee needs to be made for DMA-capable hardware and drivers.
+
+Another critical area for performance improvements could be allowing
+drivers full access to their request queue.  However, for this to be
+achievable on some operating systems, such as Minix 3, much work needs to be
+done to create a driver-accessible random access queue for drivers.
+
+\mysection{Maintenance}
+
+It would also be useful for the DDF's libraries to be shared objects that could
+be dynamically linked into code using the DDF.  This would allow drivers to
+take advantage of updated libraries as they become available without having
+to rebuild the drivers.
+
+\mysection{Device Driver Manager}
+
+In order to allow the device driver manager to be upgraded without rebooting
+the system, an upgrade protocol is needed.  The new DDM could copy the
+state from the original DDM and then tell the process information task
+to direct new DDM requests to the new DDM.  The old DDM should terminate
+once the transfer of state information is complete, but the transfer should
+only happen when the old DDM is not busy.
+
+To improve the fault tolerance of the DDM, the DDM should recognize
+when a registered driver terminates unexpectedly.  It should then unregister
+the driver and attempt to revive it, logging the problem that occurred.
+
+\mysection{Access Control Layer and Distributed Drivers}
+
+Adding an access control layer to the DDF is an area that deserves attention.
+The DDF as currently implemented provides ``implementation'', but another
+layer needs to provide ``access''.  These areas should remain separate, and
+one way to add the access control layer would be to integrate the DDF
+with existing file systems.  This would have the advantages of being able
+to use drivers as files while the file system controls access to these
+special files.  However, for this to work, the framework would need to
+have device classes the file system understand.
+
+Extending the idea of access controls, they would be needed as one part
+of security in a driver framework that supports remotely accessible
+drivers.  Again, the file system layer could be useful here by providing
+a simple way of accessing remote drivers and handling access control
+and other security issues.

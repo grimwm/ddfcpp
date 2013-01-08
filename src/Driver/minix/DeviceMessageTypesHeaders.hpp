@@ -1,0 +1,6 @@
+#ifndef MINIX_DEVICE_MESSAGE_TYPES_HEADERS_HPP__
+#define MINIX_DEVICE_MESSAGE_TYPES_HEADERS_HPP__
+
+#include <minix/com.h>
+
+#endif

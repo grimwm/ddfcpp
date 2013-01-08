@@ -1,0 +1,4 @@
+.PHONY: patch_minix
+patch_minix:
+	@sh $(TOPDIR)/patches/patches.sh \
+			$(CWD)/patches/minix.patch /usr/src $(CWD)

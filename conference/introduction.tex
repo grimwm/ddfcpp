@@ -1,0 +1,61 @@
+\mychapter{Introduction and Prior Work}
+
+% Basic Goals
+Operating systems are one of the core components to a computer.
+In fact, operating system research dominated much of the
+early history of computer science, with much of the research
+involving monolithic kernels that are used in operating systems
+such as GNU/Linux or BSD.  However, a newer breed of kernels known
+as microkernels delivers a new set of promises and problems.
+
+	\begin{figure}[tb]
+	\begin{center}
+	\mygraphic{kernel_design.eps}
+	\end{center}
+	\caption{Kernel design in (a) monolithic kernels and (b)
+	microkernels.}%~\cite{stallings2005}.}  XXX
+	\label{fig:kernel_design}
+	\end{figure}
+
+
+Microkernels involve multiple design paradigms, including principles from
+computer architecture, operating systems, and distributed systems.
+%
+%They have always offered the promise of improved extensibility,
+%flexibility, reliability, and others; however, the largest
+%failure in early microkernel designs was performance.  To counteract
+%this failure, years of research have considerably improved
+%microkernel performance to the point where microkernels are now a
+%viable alternative to monolithic kernels.
+%
+While modern microkernel performance now roughly matches monolithic
+kernel performance on most levels, one lingering problem with
+microkernels is keeping device
+drivers inside a protected memory region known as user-space without
+sacrificing performance.  Prior work on these types of
+device driver frameworks indicates that poor performance
+is the result of poor design.  However, related work in 
+distributed systems indicates that even with a good design, the
+overall problem is inherently difficult because it involves
+communication amongst many nodes, creating a fully-connected graph of
+communication links~\cite{cormen2001, tanenbaum2002}.
+Therefore, the central issue is to find an optimal compromise between
+functional perfection and responsiveness.
+
+%When a compromise between functional perfection and responsiveness
+%has been reached for a device driver framework, its design must be implemented
+%and analyzed.  Such analyses should include mathematical proofs to
+%demonstrate the design's correctness and its expected performance.
+%After a full implementation of the framework, empirical analyses on it
+%should be performed to demonstrate that the framework works in a practical
+%manner.  The empirical analyses should also compare the device driver
+%framework's performance against frameworks used in existing operating
+%systems as a benchmark.
+
+%A background of monolithic kernels and microkernels will be covered, with the
+%primary focus on microkernel performance and issues surrounding them.  Next,
+%specific examples of existing microkernels will be given, along with research
+%related to device driver frameworks in microkernel operating systems.
+%Finally, the design of this thesis' device driver framework will be discussed,
+%along with the results obtained from it, possible future directions it can
+%take, and concluding information.

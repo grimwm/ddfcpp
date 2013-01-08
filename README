@@ -1,0 +1,51 @@
+AUTHOR
+	William M. Grim
+
+NAME
+	Device Driver Framework
+
+SYNOPSIS
+	N/A
+
+DESCRIPTION
+	This project is a test bed and demonstration unit for how to write
+	basic boot-ready servers on Minix, and this project allows you to
+	communicate with the echo server using a special echo client.
+
+NOTES
+	This project requires patches to the Minix kernel.  These patches
+	have not been added directly to this project, but they will be.
+
+BUILD
+	First, execute `gmake patch_TARGET' to integrate this project into
+	an existing project.  Some examples of supported patch targets:
+		- patch_minix: Integrates this into Minix 3.1.2a
+
+	Once integrated into an external project, you will need to follow the
+	normal build procedures for the existing project and this project
+	will be built along with it.  However, to install some special code
+	that may not be built or installed with existing projects, execute
+	`gmake build install'.
+
+	To get debugging builds of any of this code, execute any of the
+	previous `gmake' statements with `DEBUG=1' in front of the command.
+
+	See SYNOPSIS for a brief usage guideline of any utilities built by
+	this project.
+
+LOG
+	01/12/2007:
+	Log has been suspended since it's updated on the web site for now...
+	Expect it to be resumed when we start making major releases.
+
+	12/24/2006:
+	Finished running some tests to make sure preliminary C++ IPC support
+	worked, and it did.  I know some things are going to need to be
+	added, but I will do that on an as-needed basis.
+
+	12/23/2006:
+	Began adapting this code from an earlier "echo" project that tested
+	boot-ready servers on Minix.  Some C++ has been written that should
+	allow for C++ clients and servers to use the IPC facilities of Minix
+	and other microkernel OS (or any OS that implements some sort of IPC
+	facilities).

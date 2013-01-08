@@ -1,0 +1,150 @@
+% This file is for (re)defining commands that will be useful for use
+% in this document.
+
+\usepackage{remreset}
+\usepackage{ccaption}
+\usepackage{fancyhdr}
+\usepackage[titles]{tocloft}
+\usepackage{indentfirst}
+\usepackage{appendix}
+
+\topmargin 0.75 in
+\textheight 8.5 in
+\oddsidemargin 0.75 in
+\evensidemargin 0.75 in
+\textwidth 6.0 in		% width of text line
+%\marginparwidth 0.75 true in	% width of marginal notes
+
+\captiondelim{ --- }
+\captionnamefont{\bfseries}
+
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headheight}{15pt}
+
+\newcommand{\mychapter}{\chapter}
+\newcommand{\mysection}{\section}
+\newcommand{\titlenumbering}{\cfoot{\thepage}}
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \titlenumbering
+}
+
+\newcommand\fancyfrontnumbering{
+  \fancyhf{}
+  \pagenumbering{roman}
+  \renewcommand{\titlenumbering}{\cfoot{\thepage}}
+  \cfoot{\thepage}
+}
+
+\newcommand\fancymainnumbering{
+  \fancyhf{}
+  \pagenumbering{arabic}
+  \renewcommand{\titlenumbering}{\rhead[\thepage]{\thepage}}
+  \rhead[\thepage]{\thepage}
+}
+
+\setcounter{secnumdepth}{0}
+\@removefromreset{figure}{chapter}
+\@removefromreset{table}{chapter}
+\renewcommand{\thefigure}{\@arabic\c@figure}
+\renewcommand{\thetable}{\@arabic\c@table}
+
+\renewcommand{\cftchapleader}{\normalfont\cftdotfill{\cftchapdotsep}}
+\renewcommand{\cftchapdotsep}{\cftdotsep}
+%\setlength{\cftbeforechapskip}{2ex}
+%\setlength{\cftbeforesecskip}{0.5ex}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cftchappagefont}{\normalfont}
+\setlength{\cftchapindent}{0em}
+
+\def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
+                       \if@mainmatter
+                         \refstepcounter{chapter}%
+                         \typeout{\@chapapp\space\thechapter.}%
+                         \addcontentsline{toc}{chapter}%
+                                   {\protect\numberline{\thechapter}\uppercase{#1}}%
+                       \else
+                         \addcontentsline{toc}{chapter}{\uppercase{#1}}%
+                       \fi
+                    \else
+                      \addcontentsline{toc}{chapter}{\uppercase{#1}}%
+                    \fi
+                    \chaptermark{#1}%
+                    \addtocontents{lof}{\protect\addvspace{10\p@}}%
+                    \addtocontents{lot}{\protect\addvspace{10\p@}}%
+                    \if@twocolumn
+                      \@topnewpage[\@makechapterhead{#2}]%
+                    \else
+                      \@makechapterhead{#2}%
+                      \@afterheading
+                    \fi}
+
+\def\@schapter#1{
+  \ifnum \c@secnumdepth >\m@ne
+    \if@mainmatter
+      \addcontentsline{toc}{chapter}
+                      {\protect\uppercase{#1}}
+    \else
+      \addcontentsline{toc}{chapter}{\uppercase{#1}}
+    \fi
+  \else
+    \addcontentsline{toc}{chapter}{\uppercase{#1}}
+  \fi
+
+  \chaptermark{#1}
+  \addtocontents{lof}{\protect\addvspace{10\p@}}
+  \addtocontents{lot}{\protect\addvspace{10\p@}}
+
+  \if@twocolumn
+    \@topnewpage[\@makeschapterhead{#1}]
+  \else
+    \@makeschapterhead{#1}
+    \@afterheading
+  \fi}
+
+\def\@makechapterhead#1{%
+{
+    \ifnum \c@secnumdepth >\m@ne
+      \if@mainmatter
+        \begin{center}\MakeUppercase{\@chapapp\space \thechapter}\end{center}
+      \fi
+    \fi
+    \begin{center}\MakeUppercase{#1}\end{center}
+    \vskip 10pt
+}}
+
+\def\@makeschapterhead#1{%
+  {\begin{center}\MakeUppercase{#1}\end{center}
+  \vskip 10pt
+}}
+
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+                                   {-1.5ex\@plus -.2ex}%
+                                   {1.5ex \@plus .2ex}%
+                                   {\normalfont\noindent\underline}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                                     {-1.5ex\@plus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\noindent\sl}}
+
+\newcommand*{\capitalize}[1]{\@capitalize #1\@end}
+\def\@capitalize#1#2\@end{\MakeUppercase{#1}\MakeLowercase{#2}}
+
+\newcommand{\mysubsection}[1]{\subsection{\capitalize{#1}}}
+\renewcommand\l@section{\@dottedtocline{1}{1.5em}{2.3em}}
+\renewcommand\l@subsection{\@dottedtocline{2}{3.8em}{3.2em}}
+
+\newcommand{\code}{\sl}
+\newcommand{\important}{\sl}
+
+\newcommand{\scale}{\scalebox}
+\newcommand{\graphic}{\includegraphics}
+
+\let\oldappendix\appendix
+\renewcommand{\appendix}{
+  \oldappendix
+  \clearpage
+  \addcontentsline{toc}{chapter}{\protect\uppercase{Appendices}}
+}

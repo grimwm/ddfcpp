@@ -1,0 +1,133 @@
+\mychapter{Experimental Results}
+
+In the user-space device driver framework, correctness was analyzed via
+unit tests and mock objects, and performance was proven to be similar
+to Minix's existing framework.  To analyze performance, a single working
+driver in both our framework and Minix's existing framework was created to
+generate timing measurements.
+
+%\mychapter{Correctness}
+\mysubsection{Correctness}
+
+The unit testing framework is a custom set of classes that can be fed any type
+of data.  The data fed to the unit tests is always
+{\important (actual result, expected result)} tuples.
+%  If the results do
+%not match, a message is printed that explains the issue; otherwise, a message
+%is printed indicating success.
+Each unit test is considered valid when the two values match, while a failure is indicated when the two values differ.
+
+%Unit tests are not only good at determining whether code executes correctly
+%when correct inputs are given, but they excel at catching certain bugs in code
+%that do not properly handle incorrect inputs.  For example, if code should
+%return specific error codes on invalid input, unit tests can be used to check
+%that the code does indeed return the correct error codes.  Further, it's
+%entirely possible that the code being tested does not work at all and just
+%crashes; unit tests are useful here for determining exactly when the
+%crash occurs.
+%
+%Where unit tests fail is when output from code is non-deterministic; for these
+%cases, mock objects pick up the slack.  Mock objects operate by inheriting a
+%real object's traits and collecting statistical data about its use, such as
+%the order of methods called, frequency of calls, and the length of each call;
+%though, any or none of these particular data may be recorded, depending
+%on the mock object developer's mood du jour.
+
+For most of the DDF's code, unit tests were the obvious choice in proving teh correctness of the implemented framework.  One
+exception to this was the keyboard, which produced non-deterministic output
+since the data was entered onto a keyboard by a human.  In this case, a mock
+object was used to record whether a method was called or not.  When the driver
+was unloaded, a unit test was executed to validate that all methods were
+called; this test always succeeded.
+
+%\mychapter{Performance}
+\mysubsection{Performance}
+
+To ensure performance in the new DDF was similar to that of Minix's existing
+DDF, timing measurements of several method calls were taken,
+building information about method call overhead.  The methods themselves
+did nothing and just returned, and these measurements were taken on four
+typical methods: {\important open, read, write}, and {\important close}. 
+% GNU
+%Compiler Collection (GCC) version 4.1.1 was used to build tests with exception
+%handling disabled and full optimizations enabled.  
+The averaged results of
+5,000 calls to each method is shown in \tablename~\ref{tab:results}.
+
+	\begin{table}[tb]
+	\begin{center}
+	\begin{tabular}{|c|c|c|c|c|}
+%	  \toprule
+	\hline
+	  \bf Framework & \bf Open & \bf Read & \bf Write & \bf Close\\
+%	  \midrule
+	\hline
+	  Existing & 0.0042 & 0.0056 & 0.0050 &
+	  0.0042 \\
+%	  \midrule
+	  New & 0.0054 & 0.0048 & 0.0042 &
+	  0.0062 \\
+	\hline
+%	  \bottomrule
+	\end{tabular}
+	\end{center}
+	\caption{DDF method call timing averages in ticks.}
+	\label{tab:results}
+	\end{table}
+
+Averaging the timing results in \tablename~\ref{tab:results}
+%\footnote{The fact
+%that reads and writes were faster than opens and closes does not construe
+%the fact that this always happens.  In this case, reads and writes just
+%happened to execute faster.}
+, one can see
+that the existing framework averages 0.0048 clock ticks per call while our framework averages 0.0052 clock ticks per call.  Further, 
+\tablename~\ref{tab:result_errors} shows that most of the calls took
+no recorded clocks ticks to execute, and the rest of the calls only took
+one clock tick to execute.  Thus, it can be seen that the averages are
+based on numbers that do not vary greatly, providing strength to the
+argument that the averages are indeed representative of general method
+call overhead.
+
+	\begin{table}[tb]
+	\begin{center}
+	\begin{tabular}{|c|c|c|c|c|}
+%	  \toprule
+	\hline
+	  \bf Framework & \bf Open & \bf Read & \bf Write & \bf Close\\
+%	  \midrule
+	\hline
+	  Existing (0) & 4,979 & 4,972 & 4,975 & 4,979\\
+	  Existing (1) & 21 & 28 & 25 & 21\\
+%	  \midrule
+	\hline
+	  New (0) & 4,973 & 4,976 & 4,979 & 4,969\\
+	  New (1) & 27 & 24 & 21 & 31\\
+%	  \bottomrule
+	\hline
+	\end{tabular}
+	\end{center}
+	\caption{Number of method calls that took 0 or 1 ticks to complete.}
+	\label{tab:result_errors}
+	\end{table}
+
+Based on the results of \tablename~\ref{tab:results} and
+\tablename~\ref{tab:result_errors}, it is shown that the new DDF
+is roughly 6.8\% slower than the existing DDF in terms of call overhead,
+proving that the new DDF's method call speed is similar to Minix's existing
+device driver framework by less than an order-of-magnitude.  However, in
+general operation, it is believed that method execution times would be much
+larger than method call overhead, making this slightly degraded performance
+even less noticeable.
+
+%The most likely cause for the higher call overhead in the new DDF is the fact
+%that C++ is used in the thesis' design.  C++ has additional overhead in
+%object-oriented settings since it has to dereference objects to get access
+%to its virtual function table.
+%Typically, C++ would also have exception handling overhead, but that was
+%disabled for theses tests since C++ system code likely would not use it.
+%
+%Having said that C++ is likely to blame for the method call degradation, it
+%may actually improve overall execution times in a real setting.  It could
+%do this because it provides more type information to the C++ compiler,
+%allowing it to optimize more.

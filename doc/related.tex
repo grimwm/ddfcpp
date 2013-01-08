@@ -1,0 +1,212 @@
+\mychapter{Related Research}
+
+The design for a user-space device driver framework is based on work seen in
+deva/fabrica and is implemented on Minix 3.0.  In the
+following subsections is information regarding deva/fabrica and Minix 3.0's
+existing driver framework.
+
+\mysection{Deva/Fabrica}
+\label{sec:deva_fabrica}
+
+Deva/fabrica is a user-space device driver framework implemented
+for GNU Hurd-L4 by Peter De Schriver and Daniel Wagner~\cite{hurdl4ref2003}.
+It makes many practical decisions but was never completed and
+suffers from some design complexities.  The goals of this DDF are to be
+comparable in speed to existing monolithic systems, portable, flexible,
+consistent, tolerant of critical device driver
+failures, and to provide a convenient interface.  To help meet the goals set
+forth by the deva/fabrica project, it has three primary components: bus
+drivers, device drivers, and services.
+
+In \figurename~\ref{fig:deva_layout}, it can be seen that deva/fabrica models
+the physical hardware layout of a system.  For example, there is one entry
+point\footnote{Initial access point that provides information about how
+to get to other access points.}, Bus$_0$, to all primary busses.  Bus$_0$ is a
+virtual bus driver\footnote{A bus driver that does not own an actual
+hardware bus.} with information about how to access all directly-connected
+children busses.  At the lowest level of the driver hierarchy are device
+drivers, which are directly attached to bus drivers.
+
+	\begin{figure}[tb]
+	\begin{center}
+	\psfrag{Process_1}{Process$_1$}
+	\psfrag{Process_2}{Process$_2$}
+	\psfrag{Process_3}{Process$_3$}
+	\psfrag{Device_1}{Device$_1$}
+	\psfrag{Device_2}{Device$_2$}
+	\psfrag{Device_3}{Device$_3$}
+	\psfrag{Bus_0}{Bus$_0$}
+	\psfrag{Bus_1}{Bus$_1$}
+	\psfrag{Bus_2}{Bus$_2$}
+	\psfrag{Bus_3}{Bus$_3$}
+	\scale{0.50}{\graphic{deva_layout}}
+	\end{center}
+	\caption{Deva/fabrica layout~\cite{hurdl4ref2003}.}
+	\label{fig:deva_layout}
+	\end{figure}
+
+\mysubsection{Drivers}
+
+The bus drivers watch I/O busses for insertion and removal events and notify
+plugin managers of these events, providing them with the necessary information
+to load the correct device driver.  The bus drivers also provide metadata
+about a device to its driver, such as the bus addresses to which it's
+attached, the interrupt request (IRQ) numbers, the DMA channel IDs, etc.
+Also, bus drivers provide a set of communication primitives for use between
+the drivers and devices, such as send/receive and memory (un)mapping.  Support
+for rescanning busses to check for devices whose drivers are not loaded is also
+supported~\cite{hurdl4ref2003}; this particular ability is especially useful
+during bootstrapping when some devices are not loaded because their drivers
+depend on other devices to be running first, such as printers depending on
+parallel port drivers.  
+
+All I/O operations that need use of memory buffers require
+the user-space application provide the device driver with the memory
+containing the I/O to be done.  This is in contrast to monolithic kernels
+where certain devices use kernel-space memory buffers.  The advantages to
+having user-space memory buffers is that it avoids a memory-to-memory
+copy of data~\cite{hurdl4ref2003, mckusick1996, l4ref2005} and prevents
+user memory from entering protected memory.
+
+\mysubsection{Driver Classes}
+
+Device drivers may be one of nine device classes, including
+character, block, human input, packet switched network, circuit switched
+network, framebuffer, streaming audio, streaming video, and solid state
+storage~\cite{hurdl4ref2003}.  Each of these classes has a specific type of
+interface for communicating with the I/O bus to which they're attached.  As
+mentioned earlier, the bus drivers themselves will provide this interface to
+the device drivers.
+
+Deva/fabrica's nine device classes can be simplified to just
+two classes: {\important character} and {\important block}.  Character
+devices cover five of deva/fabrica's device classes: human input,
+packet and circuit switching networks, and streaming audio and video.
+All other aforementioned device classes fall under the block devices
+category.
+
+While character devices are generally used to transfer data as a stream of
+bytes~\cite{mckusick1996}, some systems such as BSD have a special character
+device class called the {\important raw device}~\cite{mckusick1996}.
+This device class is used by applications that have intimate knowledge
+about the device they're using, such as file system manipulators and video
+applications.  This allows user-space applications to directly access the
+I/O device.  However, this class is not needed in deva/fabrica, because all
+device drivers afford users the ability to directly manipulate I/O devices
+or to manipulate them via standard interfaces (i.e. open, read, write,
+close, lock).
+
+\mysubsection{Services}
+
+{\important Wortel} is a system-central IRQ logic
+server~\cite{hurdl4ref2003} that runs in kernel-space, and its primary
+task is to enable IRQ rerouting~\cite{hurdl4ref2003}.  When IRQs are
+shared amongst multiple drivers, it is their responsibility to pass
+IRQs to peers~\cite{hurdl4ref2003}.
+
+The {\important plugin manager} is a process where bus events are sent to ask
+deva to (un)load drivers.  Each bus driver is associated with exactly one
+of the potentially many running plugin managers.  Also, the plugin
+manager maintains a list of currently loaded drivers and provides this
+information upon request.
+
+In \figurename~\ref{fig:deva_layout}, {\important deva} is implemented as
+either a task or library that supports interaction with the host operating
+system.  Its primary functions are to provide support for thread creation
+and deletion, memory (de)allocation, I/O port mapping, driver (un)loading,
+and bootstrapping.
+
+With {\important deva}, thread creation and deletion, memory (de)allocation,
+and I/O port mapping are done by asking the host operating system to perform
+these tasks on its behalf.  Thus, {\important deva} provides an operating
+system abstraction so drivers do not have to be modified for each operating
+system.
+
+Deva's driver (un)loading is used by plugin managers during
+the handling of bus events.  It's also used by user-space processes that
+wish to manually load drivers.  Although it is counter-intuitive as to
+why deva loads drivers instead of the plugin manager, it actually has to do
+with the fact that deva is asking the host operating system's file system
+for a stored driver to load.  This is consistent with using deva as an
+abstraction to the operating system.
+
+\mysubsection{Bootstrapping}
+
+{\important Wortel} is the part of deva/fabrica that launches the device
+driver framework at boot time.  It launches {\important deva}, which
+proceeds to unpack an archive of stored device drivers and servers.
+After unpacking, it loads the first {\important plugin manager} and passes
+control over to it.  Finally, the plugin manager loads the root bus driver,
+Bus$_0$.
+
+\mysubsection{Problems}
+
+As mentioned earlier, deva/fabrica does not need nine device classes; instead,
+they can be simplified to just two classes.  The fact that deva/fabrica has
+nine device classes introduces extra complexity for both the framework
+implementors and users of the framework.  For example, nine device classes
+implies nine unique interfaces; however, a proper design approach is to
+use one interface with nine different underlying implementations.
+
+Finally, deva/fabrica was never fully realized, in part due to its
+complexity.  Therefore, it remains a partially complete project and
+has received no performance evaluations.
+
+\mysection{Minix 3.0}
+
+The purpose of the Minix 3.0 project by Jorrit N. Herder was to greatly
+reduce the size of the Minix kernel and move device drivers out of the
+kernel and into user-space~\cite{herder2005}.  His document is a mostly
+complete analysis of his work and includes benchmarks that provide an
+indication of how other user-space device drivers may perform in a true
+microkernel environment.
+
+Before Jorrit Herder began the move of drivers from kernel-space to
+user-space, he ran analyses on Minix 2.0.4 to see how well IPC
+between user-space and kernel-space performed.  His results indicated that
+Minix 2.0.4 could pass a basic IPC message at roughly three times the
+speed of a system call.  Further, he indicated that the IPC overhead will
+likely only be 0.5\% of the total CPU time used by device
+drivers~\cite{herder2005}.
+
+Jorrit Herder's solution to placing device drivers into user-space was to
+allow the kernel to act as a proxy for device drivers when they needed to
+perform I/O and IPC~\cite{herder2005}.  The reasoning behind this move is
+because user-space processes no longer get direct access to the hardware
+and other processes' address space, and the kernel provides these features.
+
+Often, device drivers need access to information that is generally contained
+inside Minix kernel data structures, such as the process table or list of
+free memory chunks.  Since the new user-space device drivers can no longer
+directly access kernel memory, Jorrit Herder implemented a set of system
+calls that allowed drivers to copy these structures into their own address
+space, allowing safe use of the data~\cite{herder2005}.
+
+One other important change Jorrit Herder had to make to Minix was the
+prevention of potential deadlock, since it could render a system unusable.
+To handle this, Jorrit Herder bolstered the Minix kernel's asynchronous message
+facilities seen in \figurename~\ref{fig:minix_async_msg} so that the kernel
+could send critical messages to less trusted
+user-space servers without blocking the kernel~\cite{herder2005}.
+
+\figurename~\ref{fig:minix_async_msg} shows the kernel passing asynchronous
+hardware interrupts to device drivers.  The kernel does this by checking
+if the driver that needs to answer the request is ready, giving it the
+message and scheduling it to run if it is.  If the driver is not ready or
+if a race condition\footnote{Blocking a critical kernel task to answer another
+hardware interrupt would be a {\important race condition}.} exists, the kernel
+stores the pending message in a queue~\cite{herder2005}.
+
+	\begin{figure}[tbp]
+	\begin{center}
+	\psfrag{Device_1}{Device$_1$}
+	\scale{0.50}{\graphic{minix_async_msg}}
+	\end{center}
+	\caption{Asynchronous message handling.}
+	\label{fig:minix_async_msg}
+	\end{figure}
+
+It is difficult to say how successful Jorrit Herder's project was, because
+he did no post-mortem examination of the user-space device driver performance.
+However, if Jorrit's preliminary test results are any indication, then the
+results are probably satisfactory.

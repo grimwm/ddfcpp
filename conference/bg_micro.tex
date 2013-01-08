@@ -1,0 +1,115 @@
+
+
+%\mychapter{The Microkernel}
+\mysubsection{The Microkernel}
+
+In contrast to monolithic kernels, which place operating system specific code
+directly in kernel-space, pure microkernels put only essential operating
+system functions into
+kernel-space; all other services are placed outside the kernel.  Microkernels
+replace the vertical scaling of monolithic kernels with horizontal
+scaling~\cite{stallings2005}, as shown in \figurename~\ref{fig:kernel_design}.
+An example of how microkernels represent a client/server architecture is
+shown in \figurename~\ref{fig:microkernel_servers}.
+
+
+	\begin{figure}[tb]
+	\begin{center}
+	\psfrag{m$_0$}{m$_0$}
+	\psfrag{m$_1$}{m$_1$}
+	\psfrag{m$_2$}{m$_2$}
+	\psfrag{m$_3$}{m$_3$}
+	\mygraphic{microkernel_servers.eps}
+	\end{center}
+	\caption{Microkernels exhibit client/server behaviour.}
+	\label{fig:microkernel_servers}
+	\end{figure}
+
+A microkernel operating system is a set of user-space servers built on top of
+an existing microkernel~\cite{stallings2005}, such as Mach or L4, with one
+critical service being the device driver framework.  The device driver
+framework is the backbone service for all devices in the system, providing
+a common way for device drivers to access devices and input/output (I/O)
+buses on behalf of requesting clients.  
+%
+%The microkernel's unique design pattern maintains several advantages over
+%monolithic kernels~\cite{stallings2005}:
+%
+%\begin{itemize} % Microkernel Advantages
+%
+%\item {\important Uniform Interface}:
+%Message passing provides a consistent method for accessing services
+%on remote servers.  This means that multiple services on one or many
+%computers could interact with each other using the same message
+%passing mechanism.  Further, depending on particular
+%design decisions, message passing can allow multiple computers
+%to communicate with varying degrees of architecture
+%independence.
+%
+%\item {\important Extensibility}: Services can be added or extended
+%relatively easily without rebuilding or rebooting the operating system
+%due to the fact that all services run independently of each
+%other.  This is also partly because the
+%loosely-coupled code has the tendency to be smaller, making it easier to
+%change without needing to review as much code.
+%
+%\item {\important Flexibility}: Microkernel operating systems can be easily
+%stripped down or modified to meet changing demands.
+%For example, one packaging of the operating system may need to handle
+%high-availability (HA) and high-performance computing (HPC), while another
+%packaging may need to run on a PDA or game console.  Meeting these changing
+%demands in a monolithic operating system would take more development time
+%than a microkernel operating system.
+%
+%\item {\important Reliability}: All code can be rigorously tested, since
+%the code base is small.  Some areas where reliability
+%can be important are NASA spacecraft, medical systems, banking,
+%real-time environment monitoring, and others.
+%
+%\item {\important Portability}: Architecture-dependent code only
+%exists in the microkernel and special user-space servers, leaving
+%the majority of the software architecture-independent.
+%
+%\item {\important Inherent Distributed System}: If all operating
+%system tasks have globally unique identifiers, then in effect, the
+%operating system is a single system image (SSI) at the
+%microkernel level.  This is due to the fact that
+%the microkernel provides the message passing mechanism and basic
+%naming system for tasks.  A
+%simple example of this fact is that the process scheduling server will have
+%to interact, via messages, with the virtual memory server as it swaps
+%processes in and out of the CPU and memory.
+%
+%\item {\important Object-Oriented / Component-Oriented Design}:
+%{\important Object-oriented} methodologies dictate the tight coupling of
+%related data and methods into single entities known as
+%{\important objects}; likewise,
+%{\important component-oriented} methodologies dictate the tight coupling
+%of related objects into single entities known as
+%{\important components}~\cite{tanenbaum2002}.
+%This is a natural evolution of operating system design as a result of the
+%microkernel's inherently distributed operation.
+%Both of these methodologies work together seemlessly,
+%providing a clear context of what everything in the operating system does.
+%
+%\end{itemize} % Microkernel Advantages
+%
+This allows microkernel operating
+systems to be easily extended into several application domains, such as
+hard and soft real-time systems, high-availability systems, high
+performance systems, or any combination of these and
+others.
+
+As operating system history, and in general, software development
+history has unfolded, it has become clear that object-oriented
+approaches to large-scale problems are often beneficial to reducing
+the complexity of a given system.  In fact, operating system
+researchers once theorized that a similar approach to kernel design
+could alleviate the shortcomings of the monolithic kernel by splitting
+primary and secondary services into two groups.  The set of primary
+services, such as IPC and kernel thread scheduling would remain in
+kernel-space with the microkernel, and everything else would be placed
+in user-space, where memory addressing is protected. In this sense, a
+microkernel approach can also be viewed as object-oriented in nature.
+
+\input{bg_micro_hazards}

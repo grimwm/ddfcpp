@@ -1,0 +1,58 @@
+%\mychapter{Framework Abstraction}
+\mysubsection{Framework Abstraction}
+
+In this design, abstraction libraries are the core components needed to
+enable communication among the operating system, device drivers,
+hardware, DDM, and clients.  The libraries need to be
+efficient; otherwise, the computational overhead could get in the
+way of time-critical operations.  Therefore, a rich set of primitives that can
+be used to pass raw data quickly are provided.  The libraries created for this
+DDF are {\important libMem, libIO, libIPC, libDDM}, and {\important libDriver}, as discussed below.
+
+The memory module, {\important libMem}, provides a method to copy large slabs
+of memory from one process to another with the help of the native OS kernel.
+However, it does not currently provide methods to (de)allocate memory on the
+heap, because most modern compilers can now dynamically handle this on the
+stack.  Regardless, a future edition of the DDF could handle slab
+allocation operations for drivers that wish to use the heap for DMA rather
+than the stack.
+
+Another basic library needed for all higher-level functions in the DDF
+is the I/O library, {\important libIO}. This library provides drivers with the
+ability to read and write various-sized data to computers' I/O ports.
+This eliminates the need for driver writers to write architecture-dependent
+assembly to perform the same task.
+
+The interprocess communication library, {\important libIPC}, provides
+methods for all low-level interprocess communication in the DDF.
+It also acts as the basis for all higher-level communication protocols used
+by the DDM and drivers.
+
+Building on {\em libIPC} is the DDM proxy, {\important libDDM}.  This library
+provides easy-to-use methods for communicating with the DDM.  Internally,
+it transforms method calls into IPC messages that are transmitted with
+libIPC, but externally, access to the DDM is transparent and feels just like a
+local method invocation.  Without a library such as this, clients
+(typically drivers) would have to understand the exact protocol the DDM
+uses for communication; that would be an error-prone and mundane task
+for developers.
+
+The driver library, {\important libDriver}, is used by both drivers and driver
+clients.  From the driver end, driver writers inherit the classes in libDriver
+and override the operations they wish to handle.  The operations currently
+supported are {\important read, write, open, close, scatter, gather, I/O
+control, initialization}, and {\important finalization}.  Each driver method
+receives all arguments passed to it in a libIPC message customized to that
+particular method.
+
+From a client's perspective, {\em libDriver} acts as a proxy, handling
+communication with drivers similarly to the way libDDM handles
+communication between clients and the DDM.  This means driver method
+invocations are as simple as ``a local method call'' with well-known
+arguments.
+
+The framework's abstraction libraries are object-oriented, providing a modern
+approach to development and allowing the framework to be adapted to other
+platforms more quickly and easily.  Currently, the libraries are statically
+linked to code; however, the DDF can be modified to provide these libraries
+as shared objects.

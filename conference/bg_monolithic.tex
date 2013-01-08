@@ -1,0 +1,23 @@
+When operating systems were first created, the most easily understood
+design was that of the monolithic kernel.  In the monolithic kernel, all
+primary services and many secondary services are integrated into a single,
+shared address space that has full privileges to the CPU and its
+hardware~\cite{liedtke1996}.  Some of the services offered by a monolithic
+kernel include scheduling, file systems, networking, device drivers, and
+memory management~\cite{stallings2005}.
+
+Since all the code for a monolithic kernel executes as an
+executive\footnote{Set of software instructions executed on a CPU in a
+priviledged mode, giving the software full hardware access.}
+on a CPU~\cite{ia32-1-2004}, it has full access to all kernel
+data structures currently within the CPU's address space.
+Due to the fact that monolithic kernels execute as privileged code in an area
+commonly referred as kernel-space, the obvious, primary advantage is
+that it is easier to leverage the performance of hardware, because there
+is almost no interprocess communication (IPC) overhead inside the
+kernel.  However, there are some serious drawbacks to the monolithic approach,
+including the lack of
+transparency between kernel services, the lack of fault tolerance, and the
+overwhelming complexity of having all kernel services in the same,
+unprotected address space, making it virtually impossible to verify the
+overall correctness of a kernel~\cite{stallings2005}.

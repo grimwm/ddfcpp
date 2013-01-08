@@ -1,0 +1,26 @@
+\mysection{User Presentation}
+
+To the user, the DDM represents the drivers scattered in memory as a coherent
+hierarchy.  In \figurename~\ref{fig:ddm_layout}, busses are internal nodes
+while devices are leaves.
+
+The DDM provides facilities for searching the tree in order to make finding
+a driver or set of drivers easier.  For example, a client can ask the DDM
+for a list of drivers attached to the PCI bus, and the DDM will return the
+set of drivers claiming to belong to it.
+
+All top-level independent drivers must attach to a special {\important null
+bus} supported by the DDM.  The null bus provides a central access point into
+the tree so that when a client wants a listing of all drivers on the
+system, it can begin by enumerating all drivers on the null bus.  Mostly
+bus drivers will be connected to the null bus, but other drivers that do not
+directly depend on bus drivers for operation, such as a keyboard driver, can
+also be found on the null bus.
+
+	\begin{figure}[tbp]
+	\begin{center}
+	\scale{0.50}{\graphic{ddm_layout}}
+	\end{center}
+	\caption{Device driver manager's user presentation.}
+	\label{fig:ddm_layout}
+	\end{figure}

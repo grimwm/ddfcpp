@@ -1,0 +1,71 @@
+%\mychapter{Microkernel Performance}
+\mysubsection{Microkernel Performance}
+
+%Microkernels have a history of performing poorly, because it takes time to
+%build messages, send them from one end, receive them at another end,
+%and decode them.  However, the amount of performance
+%penalty is difficult to analyze and depends upon particular implementations
+%of message passing~\cite{stallings2005}.
+%
+%In fact, first generation microkernels, such as Mach and Chorus,
+%often suffered large performance penalties due to complex message passing
+%systems and large, relatively complex code bases.  Even
+%optimized versions of these microkernels still exhibited the performance
+%problems~\cite{stallings2005}.
+%
+%Surprisingly, after intense examination of first generation microkernel
+%performance, it was realized that the overhead for context switching was
+%not the problem, even though initial intuition suggests a larger
+%number of context switches would be the cause.  In fact, the main problem
+%lay in the inherent IPC overhead in first generation microkernels every
+%time a remote procedure call
+%(RPC)\footnote{In this context, this is synonymous to doing a system
+%call in a monolithic system.  In actuality, however, RPCs allow a
+%client to remotely execute code at a remote location and get results
+%back, all in a transparent fashion.}
+%was executed.  As an example, optimized first
+%generation microkernels execute RPCs roughly eight times {\important slower}
+%than their Unix system call counterparts~\cite{liedtke1996}.
+%
+
+While early versions of microkernels suffered from performance issues due to complex message passing and Remote Procedure Call (RPC) issues~\cite{stallings2005}~\cite{liedtke1996}, modern approaches have worked to rectify these problems. 
+%
+To mitigate the performance problems that first generation microkernels were
+suffering, two branches of development took place.  The first branch decided
+to keep the same generation of microkernels but move some critical servers
+and device drivers back into the kernel, based on empirical observations of
+good performance in monolithic operating systems; this led to a breed of
+kernels known as hybrid kernels.
+The other branch of microkernel development led to a more radical
+redesign of microkernels, aiming to decrease the size of the microkernel
+as much as possible, thus eliminating enough interprocess communication
+overhead to make them practical for general use; this branch of
+development has given way to the second generation of
+microkernels~\cite{liedtke1996}.
+%A comparison of the code size between a
+%first and second generation microkernel is shown in
+%\tablename~\ref{tab:microkernel_comparison}.
+
+Both hybrid kernels and second generation microkernels had tradeoffs.  In
+hybrid kernels, the tradeoffs included better performance, a larger, less
+flexible kernel, and more interfaces rather than fewer.  In contrast,
+second generation microkernels completely eliminate performance issues;
+however, it remains an open question as to whether second generation
+microkernels primitives are flexible enough for modern
+demands~\cite{stallings2005}.
+%
+%	\begin{table}[tb]
+%	\begin{center}
+%	\begin{tabular}{|c|c|c|c|c|}
+%	  \toprule
+%	  \bf Microkernel & \bf Version & \bf Size (KB) &
+%	  \bf System Calls & \bf Generation\\
+%	  \midrule
+%	  GNU Mach & 1.3 & $\approx$300 & 222 & 1\\
+%	  L4Ka::Pistachio & X.2 & $\approx$12 & 12 & 2\\
+%	  \bottomrule
+%	\end{tabular}
+%	\end{center}
+%	\caption{Microkernel comparison.}%~\cite{mach_ref_2001,l4ref2005}.}   XXX
+%	\label{tab:microkernel_comparison}
+%	\end{table}

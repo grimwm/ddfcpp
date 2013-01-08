@@ -1,0 +1,33 @@
+\mysection{Device Driver Manager}
+
+The device driver manager is a server task that manages
+drivers and allows other tasks to find and gain access to them.
+Due to the fact that the DDM is the core process in the DDF, the DDM is
+resilient to failures of devices or their drivers.
+
+\mysubsection{Bootstrap Protocol}
+
+Bootstrapping is a recurring theme with microkernel-based operating systems;
+however, it is doubly difficult with a device driver framework.
+A true microkernel is the first program
+loaded, knows nothing about devices, and must rely on external drivers to do
+I/O.  However, since a true microkernel does not know enough about the
+hardware to load drivers off of secondary storage, it becomes useless.
+
+Luckily, Minix 3 comes with some utilities that make it easy to create a
+bootable image consisting of the microkernel and some processes which can
+include the DDM and a few drivers.  This entirely eliminated the need for
+me to implement this myself, but it is quite possible that porting this DDF
+to another platform will reinstate the need to write this protocol.
+
+\mysubsection{Fault Tolerance}
+
+Since all drivers reside in their own address space and are assumed to
+reside on the same system, the DDM does not need extensive fault tolerance.
+When a process unexpectedly dies and another process tries to communicate
+with it, the process manager will tell the calling process why the call
+fails.  Likewise, when a failure is recognized, a log message is generated,
+and it is up to the administrator to resolve the problem.  However, since
+the existing implementation of this design is on Minix 3, Minix's
+reincarnation server (RS) can reincarnate processes that have died
+unexpectedly.
